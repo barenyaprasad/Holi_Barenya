@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Holi with Barenya</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{height:100%}
+
+body{
+margin:0;
+overflow:hidden;
+font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+background:
+radial-gradient(circle at 20% 10%,#ffe08a,transparent 45%),
+radial-gradient(circle at 80% 20%,#9be7ff,transparent 45%),
+radial-gradient(circle at 40% 90%,#ff9bd5,transparent 45%),
+linear-gradient(135deg,#fff 0%,#f8fbff 60%,#fff5f0 100%);
+}
+
+/* layout */
+.wrap{
+min-height:100vh;
+display:grid;
+place-items:center;
+padding:24px;
+position:relative;
+}
+
+.dots{
+position:absolute;
+inset:0;
+pointer-events:none;
+opacity:.55;
+background-image:
+radial-gradient(#ff3b3b 2px,transparent 3px),
+radial-gradient(#00c2ff 2px,transparent 3px),
+radial-gradient(#22c55e 2px,transparent 3px),
+radial-gradient(#a855f7 2px,transparent 3px),
+radial-gradient(#f59e0b 2px,transparent 3px);
+background-size:90px 90px,110px 110px,120px 120px,140px 140px,160px 160px;
+background-position:0 0,20px 40px,50px 20px,90px 80px,120px 10px;
+mix-blend-mode:multiply;
+}
+
+.screen{display:none;width:100%}
+.screen.active{display:block}
+
+/* card */
+.card{
+width:min(760px,94vw);
+margin:auto;
+background:rgba(255,255,255,.78);
+backdrop-filter:blur(10px);
+border:1px solid rgba(0,0,0,.08);
+border-radius:22px;
+box-shadow:0 20px 60px rgba(0,0,0,.12);
+padding:22px;
+text-align:center;
+}
+
+/* rainbow title */
+.rainbow{
+font-weight:950;
+font-size:clamp(26px,4vw,42px);
+background:linear-gradient(90deg,
+#ff2d2d,#ff9f0a,#ffd60a,#34c759,#00c7ff,#5e5ce6,#bf5af2,#ff4fd8);
+-webkit-background-clip:text;
+background-clip:text;
+color:transparent;
+}
+
+/* choose wisely */
+.funky{
+margin-top:10px;
+font-weight:800;
+background:linear-gradient(90deg,#ffb3b3,#c0f5ff,#d9ffb3,#f7d9ff);
+padding:8px 14px;
+border-radius:14px;
+display:inline-block;
+}
+
+.actions{
+display:flex;
+gap:12px;
+margin-top:16px;
+}
+
+button{
+border:0;
+border-radius:16px;
+padding:14px;
+font-size:16px;
+cursor:pointer;
+width:100%;
+}
+
+#yesBtn{
+background:linear-gradient(135deg,#16a34a,#22c55e);
+color:#fff;
+}
+
+#noBtn{
+background:linear-gradient(135deg,#ef4444,#fb7185);
+color:#fff;
+position:relative;
+}
+
+/* page2 */
+canvas{
+position:fixed;
+inset:0;
+z-index:1;
+pointer-events:none;
+display:none;
+}
+
+.holi{
+min-height:100vh;
+display:grid;
+place-items:center;
+text-align:center;
+z-index:2;
+position:relative;
+}
+
+.holiTitle{
+font-size:clamp(42px,7vw,90px);
+font-weight:980;
+background:linear-gradient(90deg,
+#ff2d2d,#ff9f0a,#ffd60a,#34c759,#00c7ff,#5e5ce6,#bf5af2,#ff4fd8);
+-webkit-background-clip:text;
+background-clip:text;
+color:transparent;
+}
+
+.holiSub{
+font-size:clamp(18px,3vw,30px);
+font-weight:900;
+background:linear-gradient(90deg,#ff3b3b,#ff9f0a,#34c759,#00c7ff,#bf5af2);
+-webkit-background-clip:text;
+background-clip:text;
+color:transparent;
+}
+
+@media(max-width:520px){
+.actions{flex-direction:column}
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="gulal"></canvas>
+
+<div class="wrap" id="stage">
+<div class="dots"></div>
+
+<!-- PAGE 1 -->
+<div class="screen active" id="page1">
+<div class="card">
+
+<h1 class="rainbow">Holi Plan</h1>
+<div class="funky">Choose wisely… 😜</div>
+
+<div class="actions">
+<button id="yesBtn">Want to play holi with Barenya</button>
+<button id="noBtn">Don’t want to play holi with Barenya</button>
+</div>
+
+</div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="screen" id="page2">
+<div class="holi">
+<div>
+<div class="holiTitle">Happy Holi! 🎨🥳</div>
+<div class="holiSub">Rang barse… 💥🌈</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+
+/* PAGE SWITCH */
+const page1=document.getElementById("page1")
+const page2=document.getElementById("page2")
+const yesBtn=document.getElementById("yesBtn")
+const canvas=document.getElementById("gulal")
+
+yesBtn.onclick=()=>{
+page1.classList.remove("active")
+page2.classList.add("active")
+canvas.style.display="block"
+startGulal()
+}
+
+/* RUNAWAY BUTTON */
+const noBtn=document.getElementById("noBtn")
+const stage=document.getElementById("stage")
+let abs=false
+
+function jump(){
+if(!abs){
+const r=noBtn.getBoundingClientRect()
+const s=stage.getBoundingClientRect()
+noBtn.style.position="absolute"
+noBtn.style.left=r.left-s.left+"px"
+noBtn.style.top=r.top-s.top+"px"
+abs=true
+}
+
+const pad=10
+const w=stage.clientWidth-noBtn.offsetWidth-pad
+const h=stage.clientHeight-noBtn.offsetHeight-pad
+
+noBtn.style.left=Math.random()*w+"px"
+noBtn.style.top=Math.random()*h+"px"
+}
+
+noBtn.onmouseenter=jump
+noBtn.ontouchstart=e=>{e.preventDefault();jump()}
+
+/* GULAL ANIMATION */
+
+const ctx=canvas.getContext("2d")
+function resize(){
+canvas.width=window.innerWidth*devicePixelRatio
+canvas.height=window.innerHeight*devicePixelRatio
+canvas.style.width=window.innerWidth+"px"
+canvas.style.height=window.innerHeight+"px"
+ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)
+}
+window.onresize=resize
+resize()
+
+const colors=[
+"#ff2d2d","#ff9f0a","#ffd60a","#34c759",
+"#00c7ff","#5e5ce6","#bf5af2","#ff4fd8"
+]
+
+function rand(a,b){return Math.random()*(b-a)+a}
+
+let particles=[]
+
+function splash(x,y){
+for(let i=0;i<70;i++){
+particles.push({
+x,y,
+vx:rand(-6,6),
+vy:rand(-7,-1),
+r:rand(2,7),
+life:rand(40,80),
+age:0,
+c:colors[Math.floor(Math.random()*colors.length)]
+})
+}
+}
+
+function auto(){
+if(Math.random()<0.06){
+let x=rand(0,innerWidth)
+let y=rand(0,innerHeight)
+splash(x,y)
+}
+}
+
+function step(){
+
+ctx.clearRect(0,0,innerWidth,innerHeight)
+
+auto()
+
+for(let i=particles.length-1;i>=0;i--){
+
+let p=particles[i]
+p.age++
+
+p.vy+=0.18
+p.x+=p.vx
+p.y+=p.vy
+
+ctx.globalAlpha=1-(p.age/p.life)
+ctx.fillStyle=p.c
+
+ctx.beginPath()
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
+ctx.fill()
+
+if(p.age>p.life)particles.splice(i,1)
+}
+
+requestAnimationFrame(step)
+}
+
+function startGulal(){
+splash(innerWidth/2,innerHeight/2)
+step()
+}
+
+window.onclick=e=>{
+if(page2.classList.contains("active")){
+splash(e.clientX,e.clientY)
+}
+}
+
+</script>
+
+</body>
+</html>
